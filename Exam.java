@@ -3,7 +3,6 @@
  *  CS Account: ktrivedi
  * Net Id: ktrive4
  * Assignment: Fourth Homework Assignment
- * Group members: Conrad Markiewicz, Jay Patel
  * UIN: 660657541
  */
 
@@ -12,6 +11,8 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Random;
+
+import javax.swing.JTextArea;
 
 
 public class Exam  
@@ -32,11 +33,13 @@ public class Exam
 	Exam(String exam) //Private constructor that sets the string
 	{
 		this.text = exam; //This initialize it
-	
+		
 		reportQuestionTotal = 0; //Make it equal to 0 
 		
 		examTotal = 0; //Set this to 0 
 	}
+	
+	
 	
 	Exam(Scanner EDF)
 	{
@@ -61,9 +64,6 @@ public class Exam
 				case "MCMAQuestion" : Question ques3 = new MCMAQuestion(EDF); //To check if its MCMAQuestion
 								      addQuestion(ques3);
 								      break;
-				case "NumQuestion"	: Question ques4 = new NumQuestion(EDF);
-									  addQuestion(ques4);
-									  break;
 								      default:
 			}
 		}while(EDF.hasNextLine()); //While its not space
@@ -79,6 +79,7 @@ public class Exam
 	{
 		questions1.remove(question);
 	}
+	
 	
 	public void print()  //This will print the questions
 	{
@@ -96,6 +97,25 @@ public class Exam
 		
 		System.out.print("\n");
 	}
+	public void print(JTextArea area)  //This will print the questions
+	{
+		int n = 1;
+		area.setText("Exam is being Loaded!\n");
+		area.append(text);
+		
+		for(int i = 0; i < questions1.size(); i++) //This will check the whole for loop of the arraylist
+		{
+			System.out.print(n);
+
+			area.append("\n" + (i + 1) + "). ");
+			questions1.get(i).print(area); //This gets the question and print
+			
+			n++; //This is to increment question 1 2 and so on
+		}
+		
+		System.out.print("\n");
+	}
+	
 	
 	public void reorderQuestions()
 	{
@@ -129,14 +149,12 @@ public class Exam
 	{
 		int i;
 		
-		if (position < 0)
-			for(i = 0; i < questions1.size(); i++) //To check the whole array 
-			{
-				System.out.println("\nEnter your answer for question "+(i+1) +" : ");
-				questions1.get(i).getAnswerFromStudent(); // This gets the answer from student for the question each
-			}
-		else
-			questions1.get(position).getAnswerFromStudent();
+		for(i = 0; i <questions1.size(); i++) //To check the whole array 
+		{
+		    System.out.println("\nEnter your answer for question "+(i+1) +" : ");
+			questions1.get(position).getAnswerFromStudent(); // This gets the answer from student for the question each
+			position++; //Increments the position
+		}
 	}
 	public double getValue() //this will get the val 
 	{
@@ -182,37 +200,37 @@ public class Exam
 	}
 	public void save(PrintWriter writeInFile) 
 	{
+		
 		int i;
 		
-		writeInFile.println(printExam);
+		writeInFile.print(printExam + "\n\n");
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-		writeInFile.println(timeStamp);
-		writeInFile.println();
+		writeInFile.print(timeStamp);
 		
 		i = 0;
 		
 		while(i < questions1.size())
 		{
 			if(questions1.get(i) instanceof MCMAQuestion) //Check if its MCMA Question
-			{	
+			{
+				writeInFile.print("MCMAQuestion");
+				
 				questions1.get(i).save(writeInFile);
 				
 				writeInFile.print("\n");
 			}
 			if(questions1.get(i) instanceof MCSAQuestion) //Check if its MCSAQuestion
-			{	
+			{
+				writeInFile.print("MCSAQuestion");
+				
 				questions1.get(i).save(writeInFile);
 				
 				writeInFile.print("\n");
 			}
 			if(questions1.get(i) instanceof SAQuestion) //Check if its SAQuestion 
-			{	
-				questions1.get(i).save(writeInFile);
-				
-				writeInFile.print("\n");
-			}
-			if(questions1.get(i) instanceof NumQuestion) //Check if its NumQuestion
 			{
+				writeInFile.print("SAQuestion");
+				
 				questions1.get(i).save(writeInFile);
 				
 				writeInFile.print("\n");
@@ -221,154 +239,63 @@ public class Exam
 		}
 	}
 	
-	public void saveStudentAnswer(PrintWriter writeInFile)
+	public void saveStudentAnswers(PrintWriter writeInFile)
 	{
 		
 		String userName;
 		
 		System.out.println("What is your name?\n");
 		
-		Scanner scanForTheNname = ScannerFactory.getKeyboardScanner();
+		Scanner scanForTheNname = new Scanner(System.in);
 		
 		userName = scanForTheNname.nextLine();
 		
 		writeInFile.print(userName);
 		writeInFile.print("\n\n");
-		int i = 0;
-		do
-		{
-			if(questions1.get(i) instanceof SAQuestion)  //check if its what kind of question
-			{
-				questions1.get(i).saveStudentAnswer(writeInFile);
-				
-			
-			}
-			
-			if(questions1.get(i) instanceof MCSAQuestion) //check if its what kind of question
-			{
-				questions1.get(i).saveStudentAnswer(writeInFile);
-				
-				
-			}
-			
-			if(questions1.get(i) instanceof MCMAQuestion) //check if its what kind of question
-			{
-				questions1.get(i).saveStudentAnswer(writeInFile);			
-			}
-			
-			if(questions1.get(i) instanceof NumQuestion) //check if its what kind of question
-			{
-				questions1.get(i).saveStudentAnswer(writeInFile);
-			}
-			i++;
-		}while(i < questions1.size());
 		
-			
-	}
-
-	public void saveStudentAnswer(PrintWriter writeInFile, String sourceFile)
-	{
+		writeInFile.println(text);
 		
-		String userName;
-		
-		System.out.println("What is your name?\n");
-		
-		Scanner scanForTheNname = ScannerFactory.getKeyboardScanner();
-		
-		userName = scanForTheNname.nextLine();
-		
-		writeInFile.println(userName);
-		writeInFile.println(sourceFile);
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-		writeInFile.println(timeStamp);
-		writeInFile.println();
+		writeInFile.print(timeStamp);
+		
 		int i = 0;
 		do
 		{
 			if(questions1.get(i) instanceof SAQuestion)  //check if its what kind of question
 			{
-				questions1.get(i).saveStudentAnswer(writeInFile);
+				writeInFile.print("SAQuestion");
+				writeInFile.print("\n");
+				questions1.get(i).saveStudentAnswers(writeInFile);
 				
 			
 			}
 			
 			if(questions1.get(i) instanceof MCSAQuestion) //check if its what kind of question
 			{
-				questions1.get(i).saveStudentAnswer(writeInFile);
+				writeInFile.print("MCSAQuestion");
+				writeInFile.print("\n");
+				questions1.get(i).saveStudentAnswers(writeInFile);
 				
 				
 			}
 			
 			if(questions1.get(i) instanceof MCMAQuestion) //check if its what kind of question
 			{
-				questions1.get(i).saveStudentAnswer(writeInFile);			
-			}
-			
-			if(questions1.get(i) instanceof NumQuestion) //check if its what kind of question
-			{
-				questions1.get(i).saveStudentAnswer(writeInFile);
+				writeInFile.print("MCMAQuestion");
+				writeInFile.print("\n");
+				questions1.get(i).saveStudentAnswers(writeInFile);			
 			}
 			i++;
 		}while(i < questions1.size());
 		
 			
+			writeInFile.close();
 	}
+	
 	
 	public void restoreStudentAnswers(Scanner writInfile) 
 	{
-		System.out.println("Student name: "+writInfile.nextLine());
 		
-		String check;
-		while (writInfile.hasNextLine())
-		{
-			check = writInfile.nextLine();
-			check = check.toLowerCase();
-			if (check.equals("mcsaanswer"))
-			{
-				for (int i = 0; i < questions1.size(); i++)
-				{
-					if (questions1.get(i) instanceof MCSAQuestion)
-					{
-						questions1.get(i).restoreStudentAnswer(writInfile);
-					}
-				}
-			}
-			else if (check.equals("mcmaanswer"))
-			{
-				for (int i = 0; i < questions1.size(); i++)
-				{
-					if (questions1.get(i) instanceof MCMAQuestion)
-					{
-						questions1.get(i).restoreStudentAnswer(writInfile);
-					}
-				}
-			}
-			else if (check.equals("saanswer"))
-			{
-				for (int i = 0; i < questions1.size(); i++)
-				{
-					if (questions1.get(i) instanceof SAQuestion)
-					{
-						questions1.get(i).restoreStudentAnswer(writInfile);
-					}
-				}
-			}
-			else if (check.equals("numanswer"))
-			{
-				for (int i = 0; i < questions1.size(); i++)
-				{
-					if (questions1.get(i) instanceof NumQuestion)
-					{
-						questions1.get(i).restoreStudentAnswer(writInfile);
-					}
-				}
-			}
-		}
-
-	}
-	public int getCount()
-	{
-		return questions1.size();
 	}
 }
 
